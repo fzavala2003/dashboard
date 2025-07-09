@@ -1,10 +1,10 @@
-import React from 'react';
 import { Grid } from '@mui/material';
 import "./App.css"
 import SelectorUI from './components/SelectorUI';
 import IndicatorUI from './components/IndicatorUI';
 import DataFetcher from './functions/DataFetcher';
-
+import TableUI from './components/TableUI';
+import ChartUI from './components/ChartUI';
 
 
 function App() {
@@ -19,6 +19,16 @@ function App() {
       </div>
       <SelectorUI />
       <Grid container spacing={5} justifyContent="center" alignItems="center">
+        
+          {/* Gráfico */}
+           <Grid size={{ xs: 6, md: 6 }} sx={{ display: { xs: "none", md: "block" } }}>
+              <ChartUI />
+           </Grid>
+
+           {/* Tabla */}
+           <Grid size={{ xs: 6, md: 6 }} sx={{ display: { xs: "none", md: "block" } }}>
+              <TableUI />
+           </Grid>
 
         {/* Indicadores */}
         <Grid container size={{ xs: 12, md: 9 }} >
