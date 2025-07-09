@@ -1,42 +1,47 @@
-import FormControl from '@mui/material/FormControl';
-import InputLabel from '@mui/material/InputLabel';
-import Select,{ type SelectChangeEvent } from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
-import { useState } from 'react';
+import React from 'react';
+import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
+import type { SelectChangeEvent } from '@mui/material';
 
+interface SelectorUIProps {
+  onCityChange: (lat: number, lon: number) => void;
+}
 
+// Mapa con ciudades y sus coordenadas (latitud, longitud)
+const cities = [
+  { name: 'Guayaquil', lat: -2.170998, lon: -79.922359 },
+  { name: 'Quito', lat: -0.180653, lon: -78.467838 },
+  { name: 'Manta', lat: -0.955583, lon: -80.712647 },
+  { name: 'Cuenca', lat: -2.90055, lon: -79.00459 },
+];
 
-export default function SelectorUI() {
-   const [cityInput, setCityInput] = useState('');
-   const handleChange = (event: SelectChangeEvent<string>) => {
-                setCityInput(event.target.value)
+export default function SelectorUI({ onCityChange }: SelectorUIProps) {
+  const [city, setCity] = React.useState<string>(cities[0].name);
 
-    };
-    
+  const handleChange = (event: SelectChangeEvent<string>) => {
+    const selectedCity = event.target.value;
+    setCity(selectedCity);
 
+    const cityData = cities.find(c => c.name === selectedCity);
+    if (cityData) {
+      onCityChange(cityData.lat, cityData.lon);
+    }
+  };
 
-return (
-   <FormControl fullWidth>
+  return (
+    <FormControl fullWidth sx={{ maxWidth: 300, mb: 3 }}>
       <InputLabel id="city-select-label">Ciudad</InputLabel>
       <Select
-         labelId="city-select-label"
-         id="city-simple-select"
-         label="Ciudad" onChange={handleChange} value={cityInput}>
-         
-         <MenuItem disabled><em>Seleccione una ciudad</em></MenuItem>
-         <MenuItem value={"guayaquil"}>Guayaquil</MenuItem>
-         <MenuItem value={"quito"}>Quito</MenuItem>
-         <MenuItem value={"manta"}>Manta</MenuItem>
-         <MenuItem value={"cuenca"}>Cuenca</MenuItem>
-         
-
+        labelId="city-select-label"
+        value={city}
+        label="Ciudad"
+        onChange={handleChange}
+      >
+        {cities.map(({ name }) => (
+          <MenuItem key={name} value={name}>
+            {name}
+          </MenuItem>
+        ))}
       </Select>
-      {cityInput && (
-            <p>
-                Información del clima en <span style={{textTransform: 'capitalize', fontWeight: 'bold'}}>{cityInput}</span>
-            </p>
-         )}
-
-   </FormControl>
-   )
+    </FormControl>
+  );
 }
