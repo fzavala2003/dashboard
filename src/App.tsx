@@ -1,75 +1,115 @@
-import { useState } from 'react';
-import { Grid } from '@mui/material';
-import './App.css';
-import SelectorUI from './components/SelectorUI';
-import IndicatorUI from './components/IndicatorUI';
+import SelectorUI  from './components/SelectorUI.tsx'
+import IndicatorUI from './components/IndicatorUI.tsx'
 import DataFetcher from './functions/DataFetcher';
 import TableUI from './components/TableUI';
 import ChartUI from './components/ChartUI';
+import { useState } from 'react';
+import './App.css'
+import { Grid } from '@mui/material'
 
 function App() {
-  // Estado de la ciudad seleccionada
-  const [latLon, setLatLon] = useState<{ lat: number; lon: number }>({
-    lat: 52.52,
-    lon: 13.41,
-  }); // Berlín por defecto
+  const [city, setCity] = useState<string>("guayaquil");
 
-  const { data, loading, error } = DataFetcher(latLon.lat, latLon.lon);
+  const cityCoords: Record<string, { lat: number, lon: number }> = {
+    guayaquil: { lat: -2.1962, lon: -79.8862 },
+    quito: { lat: -0.1807, lon: -78.4678 },
+    manta: { lat: -0.9677, lon: -80.7089 },
+    cuenca: { lat: -2.9006, lon: -79.0045 }
+  };
+
+  const coords = cityCoords[city];
+
+  // Pasa las coordenadas a DataFetcher
+  const dataFetcherOutput = DataFetcher(coords.lat, coords.lon);
+  const hourly = dataFetcherOutput.data?.hourly;
+  const loading = dataFetcherOutput.loading;
+  const error = dataFetcherOutput.error;
 
   return (
     <>
       <div>
         <h1>Bienvenido al Dashboard</h1>
       </div>
+      <Grid container spacing={5} justifyContent="center" alignItems="Center">
+        {/* Encabezado */}
+        <Grid size={{ xs: 12 }}>Elemento: Encabezado</Grid>
 
-      {/* Selector de ciudad */}
-      <SelectorUI onCityChange={(lat, lon) => setLatLon({ lat, lon })} />
+        {/* Alertas */}
+        <Grid size={{ xs: 12 }}>Elemento: Alertas</Grid>
 
-      {/* Indicadores */}
-      <Grid container spacing={2} justifyContent="center">
-        {loading && <p>Cargando datos...</p>}
-        {error && <p>Error: {error}</p>}
-        {data && (
+        {/* Selector */}
+        <Grid size={{ xs: 12, md: 3}}><SelectorUI onCityChange={setCity} /></Grid>
+
+        {/* Indicadores */}
+        <Grid container size={{ xs: 12, md: 9 }} >
+
+          {/* Renderizado condicional de los datos obtenidos */}
+          {dataFetcherOutput.loading && <p>Cargando datos...</p>}
+          {dataFetcherOutput.error && <p>Error: {dataFetcherOutput.error}</p>}
+          {dataFetcherOutput.data && (
           <>
-            <Grid item xs={12} md={3}>
-              <IndicatorUI
-                title='Temperatura (2m)'
-                description={`${data.current.temperature_2m} ${data.current_units.temperature_2m}`}
-              />
+
+          {/* Indicadores con datos obtenidos */}
+
+          <Grid size={{ xs: 12, md: 3 }} >
+            <IndicatorUI
+              title='Temperatura (2m)'
+              description={dataFetcherOutput.data.current.temperature_2m + " " + dataFetcherOutput.data.current_units.temperature_2m} />
+          </Grid>
+
+          <Grid size={{ xs: 12, md: 3 }}>
+            <IndicatorUI
+              title='Temperatura aparente'
+              description={dataFetcherOutput.data.current.apparent_temperature + " " + dataFetcherOutput.data.current_units.apparent_temperature} />
             </Grid>
-            <Grid item xs={12} md={3}>
-              <IndicatorUI
-                title='Temperatura aparente'
-                description={`${data.current.apparent_temperature} ${data.current_units.apparent_temperature}`}
-              />
-            </Grid>
-            <Grid item xs={12} md={3}>
+
+            <Grid size={{ xs: 12, md: 3 }}>
               <IndicatorUI
                 title='Velocidad del viento'
-                description={`${data.current.wind_speed_10m} ${data.current_units.wind_speed_10m}`}
-              />
+                description={dataFetcherOutput.data.current.wind_speed_10m + " " + dataFetcherOutput.data.current_units.wind_speed_10m} />
             </Grid>
-            <Grid item xs={12} md={3}>
+
+            <Grid size={{ xs: 12, md: 3 }}>
               <IndicatorUI
                 title='Humedad relativa'
-                description={`${data.current.relative_humidity_2m} ${data.current_units.relative_humidity_2m}`}
-              />
+                description={dataFetcherOutput.data.current.relative_humidity_2m + " " + dataFetcherOutput.data.current_units.relative_humidity_2m} />
             </Grid>
-          </>
-        )}
-      </Grid>
 
-      {/* Gráfico y Tabla */}
-      <Grid container spacing={5} justifyContent="center" alignItems="center" sx={{ mt: 3 }}>
-        <Grid item xs={12} md={6}>
-          <ChartUI data={data} loading={loading} error={error} />
+            </>
+            )}
         </Grid>
-        <Grid item xs={12} md={6}>
-          <TableUI data={data} loading={loading} error={error} />
+
+
+        {/* Gráfico */}
+        <Grid
+          sx={{ dispaly: { xs: "none", md: "block" } }} 
+          size={{ xs: 6, md: 6}}>
+            <ChartUI 
+              loading={loading}
+              error={error}
+              labels={hourly?.time ?? []}
+              values1={hourly?.temperature_2m ?? []} 
+              values2={hourly?.wind_speed_10m ?? []}
+            />
+          </Grid>
+
+        {/* Tabla */}
+        <Grid size={{ xs: 12, md: 6}}>
+          <TableUI 
+            loading={loading}
+            error={error}
+            labels={hourly?.time ?? []}
+            values1={hourly?.temperature_2m ?? []} 
+            values2={hourly?.wind_speed_10m ?? []}
+          />
         </Grid>
+
+        {/* Información adicional */}
+        <Grid size={{ xs: 12, md: 12}}>Elemento: Información adicional</Grid>
+
       </Grid>
     </>
-  );
+  )
 }
 
-export default App;
+export default App

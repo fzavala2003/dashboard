@@ -1,54 +1,61 @@
 import Box from '@mui/material/Box';
-import { DataGrid } from '@mui/x-data-grid';
-import type { GridColDef } from '@mui/x-data-grid';
-import CircularProgress from '@mui/material/CircularProgress';
-import Alert from '@mui/material/Alert';
-import type { OpenMeteoResponse } from '../types/DashboardTypes';
+import { DataGrid, type GridColDef } from '@mui/x-data-grid';
 
-interface Props {
-  data: OpenMeteoResponse | null;
-  loading: boolean;
-  error: string | null;
+function combineArrays(arrLabels: Array<string>, arrValues1: Array<number>, arrValues2: Array<number>) {
+   return arrLabels.map((label, index) => ({
+      id: index,
+      label: label,
+      value1: arrValues1[index],
+      value2: arrValues2[index]
+   }));
 }
 
 const columns: GridColDef[] = [
-  { field: 'id', headerName: 'ID', width: 90 },
-  { field: 'time', headerName: 'Hora', width: 180 },
-  { field: 'temperature', headerName: 'Temperatura (°C)', width: 180 },
-  { field: 'windSpeed', headerName: 'Viento (km/h)', width: 180 },
-  {
-    field: 'resumen',
-    headerName: 'Resumen',
-    width: 300,
-    sortable: false,
-    hideable: false,
-    valueGetter: (_, row) => `A las ${row.time}, T: ${row.temperature}°, V: ${row.windSpeed} km/h`,
-  },
+   { field: 'id', headerName: 'ID', width: 90 },
+   { field: 'label', headerName: 'Hora', width: 180 },
+   { field: 'value1', headerName: 'Temperatura (°C)', width: 180 },
+   { field: 'value2', headerName: 'Viento (km/h)', width: 180 },
+   {
+      field: 'resumen',
+      headerName: 'Resumen',
+      description: 'No es posible ordenar u ocultar esta columna.',
+      sortable: false,
+      hideable: false,
+      width: 220,
+      valueGetter: (_, row) => `${row.label || ''} ${row.value1 || ''} ${row.value2 || ''}`,
+   },
 ];
 
-export default function TableUI({ data, loading, error }: Props) {
-  if (loading) return <CircularProgress />;
-  if (error) return <Alert severity="error">{error}</Alert>;
-  if (!data) return null;
+interface TableUIProps {
+  loading: boolean;
+  error: string | null;
+  labels: string[];
+  values1: number[];
+  values2: number[];
+}
 
-  const rows = data.hourly.time.slice(0, 24).map((time, index) => ({
-    id: index,
-    time,
-    temperature: data.hourly.temperature_2m[index],
-    windSpeed: data.hourly.wind_speed_10m[index],
-  }));
+export default function TableUI({ loading, error, labels, values1, values2 }: TableUIProps) {
+   if (loading) return <p>Cargando datos de la tabla...</p>;
+   if (error) return <p>Error al cargar la tabla: {error}</p>;
+   if (!labels.length) return <p>No hay datos para mostrar en la tabla.</p>;
 
-  return (
-    <Box sx={{ height: 500, width: '100%' }}>
-      <DataGrid
-        rows={rows}
-        columns={columns}
-        initialState={{
-          pagination: { paginationModel: { pageSize: 10 } },
-        }}
-        pageSizeOptions={[5, 10, 25]}
-        disableRowSelectionOnClick
-      />
-    </Box>
-  );
+   const rows = combineArrays(labels, values1, values2);
+
+   return (
+      <Box sx={{ height: 350, width: '100%' }}>
+         <DataGrid
+            rows={rows}
+            columns={columns}
+            initialState={{
+               pagination: {
+                  paginationModel: {
+                     pageSize: 5,
+                  },
+               },
+            }}
+            pageSizeOptions={[5]}
+            disableRowSelectionOnClick
+         />
+      </Box>
+   );
 }
