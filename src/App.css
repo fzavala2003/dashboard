@@ -38,6 +38,12 @@ body{
   margin:0;
   height: 100vh;
 }
+#root{
+  background-color: rgba(239,210,130,255);
+
+}
+
+}
 .logo {
   height: 6em;
   padding: 1.5em;

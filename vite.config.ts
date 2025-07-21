@@ -5,7 +5,7 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: "/dashboard2.0/",
+  base: "/dashboard/",
   plugins: [
       react(),
       VitePWA({
@@ -15,10 +15,10 @@ export default defineConfig({
          },
          includeAssets: ['favicon.ico', 'apple-touch-icon.png'],
    manifest: {
-      id: '/dashboard2.0/',
-      name: 'dashboard2.0 del Clima - Proyecto 04',
-      short_name: 'dashboard2.0 del Clima',
-      description: 'Proyecto 04 - dashboard2.0 del clima desarrollado con React y MUI',
+      id: '/dashboard/',
+      name: 'dashboard del Clima - Proyecto 04',
+      short_name: 'dashboard del Clima',
+      description: 'Proyecto 04 - dashboard del clima desarrollado con React y MUI',
       theme_color: '#D3D1D1',
       icons: [
          {
