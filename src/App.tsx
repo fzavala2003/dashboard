@@ -68,7 +68,7 @@ function App() {
 
             {/* Gráfico */}
             <Grid
-            sx={{ dispaly: { xs: "none", md: "block" } }} 
+            sx={{ display: { xs: "none", md: "block" } }} 
             size={{ xs: 12, md: 6}}>
               <ChartUI 
                 labels={df.data.hourly.time}

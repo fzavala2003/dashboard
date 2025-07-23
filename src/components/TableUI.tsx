@@ -1,10 +1,15 @@
 import Box from '@mui/material/Box';
 import { DataGrid, type GridColDef } from '@mui/x-data-grid';
 
-function combineArrays(arrLabels: Array<string>, arrValues1: Array<number>, arrValues2: Array<number>) {
-   return arrLabels.map((label, index) => ({
+function combineArrays(
+  arrLabels: Array<string>,
+  arrValues1: Array<number>,
+  arrValues2: Array<number>
+): Array<{ id: number; label: string; value1: number; value2: number }> {
+  const minLength = Math.min(arrLabels.length, arrValues1.length, arrValues2.length);
+  return arrLabels.slice(0, minLength).map((label, index) => ({
       id: index,
-      label: label,
+      label,
       value1: arrValues1[index],
       value2: arrValues2[index]
    }));
